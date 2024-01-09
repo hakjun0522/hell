@@ -1,0 +1,101 @@
+{% extends 'blog/base.html' %} <!-- 기본 Template으로 사용하고자 하는 template을 상속 %}
+
+    {% block main_area %}
+        <!-- 8일차 작성 -->
+        {% if user.is_authenticated %}
+            {% if user.is_superuser or user.is_staff %}
+                <!-- 로그인한 사용자가 SUPERUSER이거나(staff 권한도 포함) 스태프 권한을 가지고 있는지를 확인, 제거시 모든 USER가 가능. -->
+                <a class="btn btn-info btn-sm float-right" href="/blog/create_post/" role="button"><i class="fas fa-pen"></i>&nbsp;&nbsp;New Post</a>
+            {% endif %}
+        {% endif %} 
+    
+        <h1>Blog
+            {% if search_info %}<small class="text-muted">{{ search_info }}</small>{% endif %}
+            {% if category %}
+                <span class="badge badge-secondary">{{ category }}</span>
+            {% endif %}
+            <!-- 8일차 작성 -->
+            {% if tag %}
+                <span class="badge badge-light"><i class="fas fa-tags"></i>{{ tag }} ({{ tag.post_set.count }})</span>
+            {% endif %}
+        </h1>
+    
+        {% if post_list.exists %}
+            {% for p in post_list %}
+                <!-- Blog Post-->
+                <div class="card mb-4">
+                    {% if p.head_image %}
+                        <img class="card-img-top" src="{{ p.head_image.url }}" alt="{{ p }}" head image>
+                        <!-- 이미지가 있으면 해당 이미지를 보여줌 -->
+                    {% else %}
+                        <img class="card-img-top" src="https://picsum.photos/seed/{{ p.id }}/800/200" alt="random_image">
+                        <!-- 이미지가 없으면 랜덤으로 보여줌. -->
+                    {% endif %}
+    
+                    <div class="card-body">
+                        <!-- 6일차 작성, 뱃지 만드는 코드 -->
+                        {% if p.category %}
+                            <span class="badge badge-secondary float-right">{{ p.category }}</span>
+                        {% else %}
+                            <span class="badge badge-secondary float-right">미분류</span>
+                        {% endif %}
+    
+                        <h2 class="card-title">{{ p.title }}</h2>
+                        {% if p.hook_text %}
+                            <h5 class="text-muted">{{ p.hook_text }}</h5>
+                        {% endif %}
+                        <!-- 마크다운 적용 -->
+                        <!-- 8일차 작성 -->
+                        <p class="card-text">{{ p.get_content_markdown | truncatewords:45 | safe }}</p>
+                        <!-- <p class="card-text">{{ p.content | truncatewords:45 }}</p> -->
+                        <!-- 글자수가 45자 이상이면 45 단어까지만 보여줌 -->
+                        <!-- 7일차 작성, 태그 만드는 코드 -->
+                        {% if p.tags.exists %}
+                            <i class="fas fa-tags"></i>
+                            {% for tag in p.tags.iterator %}
+                                <a href="{{ tag.get_absolute_url }}">
+                                    <span class="badge badge-pill badge-light">{{ tag }}</span>
+                                </a>
+                            {% endfor %}
+                            <br/>
+                            <br/>
+                        {% endif %}
+    
+                        <a href="{{ p.get_absolute_url }}" class="btn btn-primary">Read More &rarr;</a>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Posted on {{ p.created_at }} by
+                        <a href="#">{{ p.author | upper }}</a>
+                        <!-- # created_at 필드 값을 출력 / upper 대문자  -->
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h3>아직 게시물이 없습니다.</h3>
+        {% endif %}
+    
+        {% if is_paginated %}
+            <!--pagination-->
+            <ul class="pagination justify-content-center mb-4">
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">&larr; Older</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">&larr; Older</a>
+                    </li>
+                {% endif %}
+    
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Newer &rarr;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Newer &rarr;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% endblock %}

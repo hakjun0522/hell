@@ -1,0 +1,6 @@
+
+클라이언트 ID
+198540215321-fta02he0gua5m7ivb4sim1hg2ebhj64s.apps.googleusercontent.com
+
+클라이언트 보안 비밀번호
+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
